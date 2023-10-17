@@ -1,15 +1,18 @@
 package com.example.finalbustraking;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.animation.ValueAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,20 +23,23 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import timber.log.Timber;
 
 public class home extends AppCompatActivity {
     private View underline;
     private TextView textView1, textView2, textView3;
     private DrawerLayout drawerLayout;
+    private EditText source,Destination;
     private ImageView menuIcon;
+    private AutoCompleteTextView autoSourceTextView,autoDesTextView;
     private int currentX = 0; // Store the current X position of the underline
     private List<String> suggestions = new ArrayList<>(); // Declare suggestions as a class-level variable
 
@@ -55,17 +61,64 @@ public class home extends AppCompatActivity {
         textView2 = findViewById(R.id.bus_stop_btn);
         textView3 = findViewById(R.id.pass_btn);
         NavigationView navigationView = findViewById(R.id.nav_view);
-        AutoCompleteTextView sourceAutoCompleteTextView = findViewById(R.id.sourceEditText);
-        AutoCompleteTextView destinationAutoCompleteTextView = findViewById(R.id.destinationEditText);
+        autoSourceTextView = findViewById(R.id.sourceEditText);
+        db.collection("journeyDetails")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            if (documentSnapshot.exists()) {
+                                String source = documentSnapshot.getString("source");
+                                if (source != null) {
+                                    suggestions.add(source);
+                                }
+                            }
+                        }
+                        // After fetching data from all documents, set up the adapter
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(home.this, android.R.layout.simple_dropdown_item_1line, suggestions);
+                        autoSourceTextView.setAdapter(adapter);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Handle the error
+                        Log.e(TAG, "Error fetching data from Firestore", e);
+                    }
+                });
+        autoDesTextView = findViewById(R.id.destinationEditText);
+        db.collection("journeyDetails")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            if (documentSnapshot.exists()) {
+                                String source = documentSnapshot.getString("destination");
+                                if (source != null) {
+                                    suggestions.add(source);
+                                }
+                            }
+                        }
+                        // After fetching data from all documents, set up the adapter
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(home.this, android.R.layout.simple_dropdown_item_1line, suggestions);
+                        autoDesTextView.setAdapter(adapter);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Handle the error
+                        Log.e(TAG, "Error fetching data from Firestore", e);
+                    }
+                });
         Button searchButton = findViewById(R.id.searchButton);
 
 
-        // Create an array to hold the suggestions
-        ArrayAdapter<String> sourceAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, suggestions);
-        ArrayAdapter<String> destinationAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, suggestions);
-        sourceAutoCompleteTextView.setAdapter(sourceAdapter);
-        destinationAutoCompleteTextView.setAdapter(destinationAdapter);
 
+
+        // Create an array to hold the suggestions
 
 
 // Initialize the underline to the initial position (textView1)
@@ -102,7 +155,7 @@ public class home extends AppCompatActivity {
                     builder.create().show();
 
 
-            } else if (itemId == R.id.Shared_app) {// Handle the click on the second item
+                } else if (itemId == R.id.Shared_app) {// Handle the click on the second item
                     Toast.makeText(home.this, "hello", Toast.LENGTH_SHORT).show();
                     // Add cases for other menu items as needed
                 }
@@ -112,7 +165,7 @@ public class home extends AppCompatActivity {
                 return true;
             }
         });
-           // Not needed
+
 
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,87 +198,15 @@ public class home extends AppCompatActivity {
                 moveUnderline(textView3);
             }
         });
-        sourceAutoCompleteTextView.setThreshold(0); // Set the threshold to 0 to show suggestions immediately
-        destinationAutoCompleteTextView.setThreshold(0);
-
-        sourceAutoCompleteTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sourceAutoCompleteTextView.showDropDown();
-            }
-        });
-
-        destinationAutoCompleteTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                destinationAutoCompleteTextView.showDropDown();
-            }
-        });
-
-// Limit the number of suggestions shown in the drop-down list
-        sourceAutoCompleteTextView.setDropDownHeight(400); // Adjust the height as needed
-        destinationAutoCompleteTextView.setDropDownHeight(400);
-
-        sourceAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedSource = sourceAdapter.getItem(position);
-                // Handle the selected source
-            }
-        });
-
-        destinationAutoCompleteTextView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String selectedDestination = destinationAdapter.getItem(position);
-                // Handle the selected destination
-            }
-        });
-
 
     }
 
-    private void fetchSuggestionsFromFirestore(String query, ArrayAdapter<String> adapter) {
-        // Check if the query has at least three characters
-        if (query.length() >= 3) {
-            // Replace 'journeyDetails' with the name of your Firestore collection
-            db.collection("journeyDetails")
-                    .whereGreaterThanOrEqualTo("source", query)
-                    .whereLessThanOrEqualTo("source", query + "\uf8ff")
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        suggestions.clear(); // Clear previous suggestions
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            String source = document.getString("source");
-                            suggestions.add(source);
-                        }
-                        adapter.notifyDataSetChanged(); // Notify the adapter about the new data
-                    })
-                    .addOnFailureListener(e -> {
-                        Timber.tag("Firestore").d(e, "Error getting source suggestions");
-                    });
+// Define a method to show the list using the provided context
 
-            // You can also fetch the "destination" in a similar way.
-            db.collection("journeyDetails")
-                    .whereGreaterThanOrEqualTo("destination", query)
-                    .whereLessThanOrEqualTo("destination", query + "\uf8ff")
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                            String destination = document.getString("destination");
-                            suggestions.add(destination);
-                        }
-                        adapter.notifyDataSetChanged(); // Notify the adapter about the new data
-                    })
-                    .addOnFailureListener(e -> {
-                        Timber.tag("Firestore").d(e, "Error getting destination suggestions");
-                    });
-        } else {
-            // Clear suggestions if the query does not have at least three characters
-            suggestions.clear();
-            adapter.notifyDataSetChanged();
-        }
-    }
+
+
+
+
 
 
 
