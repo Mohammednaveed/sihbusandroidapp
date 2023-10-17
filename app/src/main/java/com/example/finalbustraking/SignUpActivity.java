@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -46,8 +47,8 @@ public class SignUpActivity extends AppCompatActivity {
         //comnewpass = findViewById(R.id.com_new_pass);
         emailEditText = findViewById(R.id.email_edit_text);
         passEditText = findViewById(R.id.passedit_text);
-       phoneEditText = findViewById(R.id.mobile_edit_text);
-       fname=findViewById(R.id.name);
+       phoneEditText = findViewById(R.id.phone_edit_text);
+       fname=findViewById(R.id.name_edit_text);
 
         signup = findViewById(R.id.singnup_button);
 
@@ -64,16 +65,17 @@ public class SignUpActivity extends AppCompatActivity {
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String namef=fname.getText().toString();
                 String email = emailEditText.getText().toString();
                 String pass = passEditText.getText().toString();
-                String namef=fname.getText().toString();
+
 
                 String phone=phoneEditText.getText().toString();
                 //String comfnewpass = phoneEditText.getText().toString();
-                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(namef) || TextUtils.isEmpty(phone) ) {
+                if (TextUtils.isEmpty(namef) || TextUtils.isEmpty(email) || TextUtils.isEmpty(pass) || TextUtils.isEmpty(phone) ) {
                     Toast.makeText(SignUpActivity.this, "Enter all the fields properly ", Toast.LENGTH_SHORT).show();
                 } else {
-                    regis(email, pass,namef,phone);
+                    regis(namef, email,pass,phone);
                 }
             }
         });
@@ -128,14 +130,16 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-        private void regis(String email, String pass,String phone,String namef) {
+        private void regis(String name, String email,String pass,String phone) {
             // Create a new user document in Firestore
             Map<String, Object> user = new HashMap<>();
-            user.put("Name", namef);
+            user.put("Name", name);
             user.put("email", email);
             user.put("password", pass);
             user.put("usertype", "regular");
             user.put("phone",phone);// Set the user type as "driver"
+            Log.d("SignUpActivity", "Name: " + name);
+            Log.d("SignUpActivity", "Phone: " + phone);
 
             // Add other user data as needed (e.g., name, phone number)
 

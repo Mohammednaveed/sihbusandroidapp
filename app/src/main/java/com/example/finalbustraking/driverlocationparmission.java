@@ -1,5 +1,7 @@
 package com.example.finalbustraking;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.content.DialogInterface;
@@ -9,8 +11,12 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,27 +31,38 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class driverlocationparmission extends AppCompatActivity {
     private View underline;
     private TextView textView1, textView2, textView3;
     private DrawerLayout drawerLayout;
     private ImageView menuIcon;
+    private AutoCompleteTextView autoSourceTextView,autoDesTextView;
+
     private int currentX = 0; // Store the current X position of the underline
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
     private FusedLocationProviderClient fusedLocationClient;
     private DatabaseReference databaseRef;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
     private Handler locationUpdateHandler;
     private static final long LOCATION_UPDATE_INTERVAL = 5000; // 5 seconds
     private boolean locationPermissionGranted = false;
+    private List<String> suggestions = new ArrayList<>(); // Declare suggestions as a class-level variable
+
     private boolean isLocationSharing = false; // Track if location sharing is active
     private TextView rec_loc;
 
@@ -101,6 +118,61 @@ public class driverlocationparmission extends AppCompatActivity {
 
         // Handle navigation drawer item clicks
         NavigationView navigationView = findViewById(R.id.nav_view);
+        autoSourceTextView = findViewById(R.id.sourceEditText);
+        db.collection("journeyDetails")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            if (documentSnapshot.exists()) {
+                                String source = documentSnapshot.getString("source");
+                                if (source != null) {
+                                    suggestions.add(source);
+                                }
+                            }
+                        }
+                        // After fetching data from all documents, set up the adapter
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(driverlocationparmission.this, android.R.layout.simple_dropdown_item_1line, suggestions);
+                        autoSourceTextView.setAdapter(adapter);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Handle the error
+                        Log.e(TAG, "Error fetching data from Firestore", e);
+                    }
+                });
+        autoDesTextView = findViewById(R.id.destinationEditText);
+        db.collection("journeyDetails")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (QueryDocumentSnapshot documentSnapshot : queryDocumentSnapshots) {
+                            if (documentSnapshot.exists()) {
+                                String source = documentSnapshot.getString("destination");
+                                if (source != null) {
+                                    suggestions.add(source);
+                                }
+                            }
+                        }
+                        // After fetching data from all documents, set up the adapter
+                        ArrayAdapter<String> adapter = new ArrayAdapter<>(driverlocationparmission.this, android.R.layout.simple_dropdown_item_1line, suggestions);
+                        autoDesTextView.setAdapter(adapter);
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // Handle the error
+                        Log.e(TAG, "Error fetching data from Firestore", e);
+                    }
+                });
+        Button searchButton = findViewById(R.id.searchButton);
+
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

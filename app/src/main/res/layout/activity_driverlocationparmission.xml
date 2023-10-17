@@ -10,7 +10,73 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:background="#EFEFEF">
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="240dp"
+                android:layout_marginTop="150dp"
+                android:layout_marginRight="15dp"
+                android:background="@drawable/rounded_background"
+                android:layout_marginLeft="15dp"
+                >
+
+                <AutoCompleteTextView
+                    android:id="@+id/sourceEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="false"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="false"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginRight="70dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000"
+                    android:hint="Source"
+                    android:shadowColor="@color/black"
+                    android:minHeight="48dp" />
+
+                <View
+                    android:id="@+id/view"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#B92E2C2C"
+                    android:layout_marginTop="82dp"
+                    android:minHeight="48dp"
+                    android:layout_marginLeft="70dp"
+
+                    android:layout_centerInParent="false"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="false"/>
+
+                <AutoCompleteTextView
+                    android:id="@+id/destinationEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="false"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="false"
+                    android:layout_marginTop="100dp"
+                    android:layout_marginRight="60dp"
+                    android:hint="Destination"
+                    android:textColor="#000000"
+                    android:textColorHint="#000000"
+                    android:minHeight="48dp" />
+
+
+                <Button
+                    android:id="@+id/searchButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_centerInParent="false"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="false"
+                    android:layout_marginTop="170dp"
+                    android:layout_marginRight="60dp"
+                    android:text="Search" />
+            </RelativeLayout>
+
+
 
             <RelativeLayout
                 android:layout_width="match_parent"
