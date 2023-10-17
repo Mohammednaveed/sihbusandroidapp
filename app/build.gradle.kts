@@ -64,6 +64,9 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx:24.8.1")
     implementation ("com.google.firebase:firebase-auth:21.0.1") // If you also want to use Firebase Authentication
     implementation ("com.google.firebase:firebase-firestore:24.0.0") // Firestore SDK
+//    implementation ("com.google.firebase:firebase-database:21.0.1")
+//
+
 
 
 
